@@ -1,0 +1,6 @@
+.idea
+node_modules
+backend/configs/service-account.json
+backend/scripts/caption-downloader.py
+frontend/node_modules
+package-lock.json
