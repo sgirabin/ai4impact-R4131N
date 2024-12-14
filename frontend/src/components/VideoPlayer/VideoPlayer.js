@@ -50,19 +50,47 @@ const VideoPlayer = () => {
       console.log('Audio processing stopped.');
     };
 
+    
     const handleVideoPlay = async () => {
       console.log('Video started playing');
       isPlayingRef.current = true;
 
       if (videoRef.current && socket) {
         try {
-          // Initialize Web Audio API
-          const audioContext = new AudioContext();
+           // Initialize Web Audio API
+          const audioContext = new (window.AudioContext || window.webkitAudioContext)();
           audioContextRef.current = audioContext;
 
-          // Create MediaElementSource from video
-          const mediaStream = audioContext.createMediaElementSource(videoRef.current);
+	  const mediaStream = audioContext.createMediaElementSource(videoRef.current);
           mediaStreamRef.current = mediaStream;
+          mediaStream.connect(audioContext.destination);
+
+ 	  if (!audioContext.audioWorklet) {
+  		console.error('AudioWorklet is not supported. Using fallback.');
+
+  		const processor = audioContext.createScriptProcessor(4096, 1, 1);
+  		mediaStream.connect(processor);
+  		processor.connect(audioContext.destination);
+
+  		processor.onaudioprocess = (event) => {
+    			const audioData = event.inputBuffer.getChannelData(0);
+    			socket.emit('audioStream', {
+      				audioBuffer: Array.from(audioData),
+      				language: course._doc?.language || i18n.language,
+    			});
+  		};
+  		return;
+	  }
+
+
+	  //if (!audioContext.audioWorklet) {
+          //     throw new Error('AudioWorklet is not supported in this browser.');
+          //}
+	  //audioContextRef.current = audioContext;
+
+          // Create MediaElementSource from video
+          //const mediaStream = audioContext.createMediaElementSource(videoRef.current);
+          //mediaStreamRef.current = mediaStream;
 
           // Load and register the audio worklet processor
           await audioContext.audioWorklet.addModule('/worklet-processor.js');
@@ -71,7 +99,7 @@ const VideoPlayer = () => {
 
           // Connect media stream to worklet and destination
           mediaStream.connect(audioWorkletNode);
-          mediaStream.connect(audioContext.destination); // Ensure audio is played
+          //mediaStream.connect(audioContext.destination); // Ensure audio is played
           console.log('Audio Worklet connected successfully');
 
           // Handle messages from the worklet
