@@ -22,7 +22,7 @@ const VideoPlayer = () => {
 
   useEffect(() => {
       // Initialize WebSocket connection
-      const newSocket = io('http://localhost:5001');
+      const newSocket = io('http://34.57.196.213:5001');
       setSocket(newSocket);
 
       newSocket.on('caption', ({ text }) => {
