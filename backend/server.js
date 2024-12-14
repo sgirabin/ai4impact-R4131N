@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 
 // Apply CORS middleware globally
 app.use(cors({
-  origin: 'http://localhost:3000', // Allow requests from your frontend
+  origin: '*', // Allow requests from your frontend
   methods: ['GET', 'POST'], // Specify allowed HTTP methods
   allowedHeaders: ['Content-Type', 'Authorization'], // Specify allowed headers
 }));
