@@ -1,0 +1,39 @@
+/* Registration Form component - RegistrationForm.css */
+
+.registration-form {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 25px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #fdfdfd;
+}
+
+.registration-form h2 {
+  margin-bottom: 25px;
+}
+
+.form-group label {
+  display: block; /* Ensure label is a block element */
+  margin-bottom: 8px;
+  font-weight: bold; /* Make label text bold */
+  text-align: left; /* Align label to the left */
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+button {
+  width: auto; /* Fix button width */
+  padding: 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+}

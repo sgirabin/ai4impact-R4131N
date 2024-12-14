@@ -1,0 +1,14 @@
+{
+  "channels": [
+    {
+      "id": "UC_x5XG1OV2P6uZZ5FSM9Ttw",
+      "type": "channel",
+      "videos": ["video_id_1", "video_id_2"]
+    },
+    {
+      "id": "PLBCF2DAC6FFB574DE",
+      "type": "playlist"
+    }
+  ]
+}
+

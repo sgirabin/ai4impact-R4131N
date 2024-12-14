@@ -1,0 +1,33 @@
+/* Login Form component - LoginForm.css */
+
+.login-form {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block; /* Ensure label is a block element */
+  margin-bottom: 5px;
+  font-weight: bold; /* Make label text bold */
+  text-align: left; /* Align label to the left */
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+button {
+  width: auto; /* Fix button width */
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+}

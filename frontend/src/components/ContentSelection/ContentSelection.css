@@ -1,0 +1,39 @@
+/* Content Selection component - ContentSelection.css */
+
+.content-selection {
+  padding: 20px;
+}
+
+.content-selection h2 {
+  margin-bottom: 20px;
+}
+
+.content-selection input {
+  margin-bottom: 20px;
+  width: 500px;
+}
+
+.course-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.course-card {
+  background-color: #f9f9f9;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 20px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.course-card:hover {
+  transform: scale(1.05);
+}
+
+.course-thumbnail {
+  width: 150px;   /* Adjust the width as per your requirement */
+  height: auto;   /* Maintain aspect ratio */
+  object-fit: cover; /* Optional: ensures the image covers the area nicely */
+}

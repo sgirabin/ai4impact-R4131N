@@ -1,0 +1,23 @@
+/* Base styling - index.css */
+
+/* Reset some default margin/padding */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Breadcrumb styling */
+.breadcrumb {
+  margin: 20px;
+}
+
+.breadcrumb a {
+  color: #007bff;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.breadcrumb a:hover {
+  text-decoration: underline;
+}

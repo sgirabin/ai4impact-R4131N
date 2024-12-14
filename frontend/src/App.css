@@ -1,0 +1,65 @@
+/* App-specific Styles - App.css */
+
+/* Header layout */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #d9eefe;
+  border-bottom: 1px solid #ccc;
+}
+
+header h1 {
+  font-size: 2em;
+  flex-grow: 1; /* Ensure the header text takes available space */
+  color: #800000;
+}
+
+
+/* Language dropdown styling */
+.language-selector {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin: 20px;
+}
+
+.language-selector select {
+  padding: 8px;
+  margin-bottom: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+
+
+/* User info section */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Adds space between username and logout link */
+  font-size: 16px;
+}
+
+.user-info span {
+  font-weight: bold;
+}
+
+.user-info a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.user-info a:hover {
+  text-decoration: underline;
+}
+
+footer {
+    font-size: 1em;
+    background-color: #d9eefe;
+}
