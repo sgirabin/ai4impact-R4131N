@@ -116,6 +116,8 @@ const VideoPlayer = () => {
       });
 
       const aiResponse = response.data.response || t('no_response_from_ai');
+      console.log(aiResponse);
+
       setChatHistory((prev) => [...prev, { author: 'ai', content: aiResponse }]);
     } catch (error) {
       console.error('Chat error:', error);

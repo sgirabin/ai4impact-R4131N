@@ -33,25 +33,30 @@ const geminiModel = googleAI.getGenerativeModel({
 
 // Endpoint to handle chat queries
 router.post('/', async (req, res) => {
+  console.log("chat enter");
   const { courseId, query, targetLanguage } = req.body;
 
   try {
     // Step 1: Fetch lecture notes from GCS
+    console.log("Step 1: Fetch lecture notes from GCS");
     const notes = await fetchNotesFromGCS(courseId);
-    console.log(notes)
+    console.log(notes);
 
     // Step 2: Translate lecture notes (if necessary)
+    console.log("Step 2: Translate lecture notes (if necessary)");
     const translatedNotes = await translateNotes(notes, targetLanguage);
-    console.log(translatedNotes)
+    console.log(translatedNotes);
 
     // Step 3: Generate embeddings for lecture notes (optional step)
+    console.log("Step 3: Generate embeddings for lecture notes (optional step)")
     const noteEmbeddings = await generateEmbeddings(translatedNotes);
 
     // Step 4: Pass user query and translated notes to Gemini model
+    console.log("Step 4: Pass user query and translated notes to Gemini model")
     const geminiResponse = await queryGeminiModel(query, translatedNotes);
-    console(query, translatedNotes)
 
     // Step 5: Send Gemini's response back to the client
+    console.log("Step 5: Send Gemini's response back to the client")
     res.status(200).json({ response: geminiResponse });
   } catch (error) {
     console.error('Error during chat processing:', error.message);
@@ -94,9 +99,11 @@ async function queryGeminiModel(query, context) {
     )}\n\nQuestion: ${query}\nAnswer:`;
 
     // Call Gemini model
-    console.log(prompt);
+    console.log("prompt:", prompt);
     const result = await geminiModel.generateContent(prompt);
-    return result.response.text();
+    const resultText = await result.response.text();
+
+    return resultText;
   } catch (error) {
     console.error('Error querying Gemini model:', error.message);
     throw new Error('Failed to generate response using Gemini.');
