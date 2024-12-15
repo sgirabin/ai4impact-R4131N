@@ -3,7 +3,7 @@ const { SpeechClient } = require('@google-cloud/speech');
 const { Translate } = require('@google-cloud/translate').v2;
 const { TextToSpeechClient } = require('@google-cloud/text-to-speech');
 const ffmpeg = require('fluent-ffmpeg');
-const fs = require('fs').promises; // For working with local files asynchronously
+const fs = require('fs').promises;
 
 const storage = new Storage();
 const speechClient = new SpeechClient();
@@ -31,7 +31,7 @@ exports.processVideoUpload = async (event, context) => {
   const courseId = filePath.split('/').pop().split('_')[0];
   const localVideoPath = `/tmp/${courseId}_video.mp4`;
   const localAudioPath = `/tmp/${courseId}_audio.wav`;
-  const gcsAudioPath = `${audioFolder}/${courseId}_audio.wav`;
+  const gcsAudioPath = `gs://${bucketName}/${audioFolder}/${courseId}_audio.wav`;
 
   try {
     // Step 1: Download video from GCS to a local path
@@ -45,7 +45,7 @@ exports.processVideoUpload = async (event, context) => {
     console.log(`Audio extracted to: ${localAudioPath}`);
 
     // Step 3: Upload the extracted audio to GCS
-    await storage.bucket(bucketName).upload(localAudioPath, { destination: gcsAudioPath });
+    await storage.bucket(bucketName).upload(localAudioPath, { destination: `${audioFolder}/${courseId}_audio.wav` });
     console.log(`Audio uploaded to GCS: ${gcsAudioPath}`);
 
     // Step 4: Generate captions and audio for each supported language
@@ -109,7 +109,7 @@ async function transcribeAudio(gcsUri) {
       languageCode: 'en-US',
     },
     audio: {
-      uri: gcsUri, // GCS URI of the audio file
+      uri: gcsUri, // Correct GCS URI of the audio file
     },
   };
 
