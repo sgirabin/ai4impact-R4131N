@@ -11,9 +11,9 @@ const VideoPlayer = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { course } = location.state || {};
-  const [currentCaption, setCurrentCaption] = useState(''); // Sectional caption
-  const [dubbedAudioUrl, setDubbedAudioUrl] = useState(''); // Dubbed audio
-  const [captionsList, setCaptionsList] = useState([]); // List of sectional captions
+  const [currentCaption, setCurrentCaption] = useState('');
+  const [dubbedAudioUrl, setDubbedAudioUrl] = useState('');
+  const [captionsList, setCaptionsList] = useState([]);
   const [currentCaptionIndex, setCurrentCaptionIndex] = useState(0);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [activeTab, setActiveTab] = useState('description');
@@ -27,26 +27,33 @@ const VideoPlayer = () => {
   useEffect(() => {
     if (course) {
       if (i18n.language === 'en') {
-        // For English: Load original captions
         setCaptionsList(course.originalCaptions?.split('\n') || []);
         setDubbedAudioUrl('');
       } else {
-        // Fetch captions and dubbed audio for other languages
         fetchCaptionsAndAudio(course._doc.id, i18n.language);
       }
     }
   }, [course, i18n.language]);
 
-  // Fetch captions and dubbed audio from GCS
+  // Clean up audio when component unmounts
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause(); // Stop audio playback
+        audioRef.current.currentTime = 0; // Reset audio time
+        audioRef.current = null; // Clear audio reference
+      }
+    };
+  }, []);
+
   const fetchCaptionsAndAudio = async (courseId, language) => {
     try {
       const bucketUrl = 'https://storage.googleapis.com/vivo-learning-vidoes';
       const captionUrl = `${bucketUrl}/caption/${courseId}_${language}.txt`;
       const audioUrl = `${bucketUrl}/audio/${courseId}_${language}.mp3`;
 
-      // Fetch captions as a list of sections
       const response = await axios.get(captionUrl);
-      setCaptionsList(response.data.split('\n')); // Split captions by new line
+      setCaptionsList(response.data.split('\n'));
       setDubbedAudioUrl(audioUrl);
     } catch (error) {
       console.error('Error fetching captions or audio:', error.message);
@@ -55,15 +62,8 @@ const VideoPlayer = () => {
   };
 
   const handleVideoPlay = () => {
-    // Mute the original video audio
     if (videoRef.current) videoRef.current.muted = true;
-
-    // Play dubbed audio if available
-    if (dubbedAudioUrl) {
-      playDubbedAudio();
-    }
-
-    // Start displaying captions section-by-section
+    playDubbedAudio();
     setCurrentCaptionIndex(0);
   };
 
@@ -75,25 +75,21 @@ const VideoPlayer = () => {
       audio.play();
       setIsAudioPlaying(true);
 
-      audio.onended = () => {
-        setIsAudioPlaying(false);
-      };
+      audio.onended = () => setIsAudioPlaying(false);
     }
   };
 
   useEffect(() => {
-    // Simulate captions updating per section
     let timer;
     if (captionsList.length > 0 && currentCaptionIndex < captionsList.length) {
       timer = setTimeout(() => {
         setCurrentCaption(captionsList[currentCaptionIndex]);
         setCurrentCaptionIndex((prev) => prev + 1);
-      }, 5000); // Show each caption for 5 seconds
+      }, 5000);
     }
     return () => clearTimeout(timer);
   }, [currentCaptionIndex, captionsList]);
 
-  // Handle user chat submission
   const handleChatSubmit = async (e) => {
     e.preventDefault();
     if (!chatInput.trim()) return;
@@ -137,7 +133,6 @@ const VideoPlayer = () => {
         </nav>
         <h2>{course.title}</h2>
 
-        {/* Video Player */}
         <div className="video-container">
           <video
             ref={videoRef}
@@ -152,8 +147,6 @@ const VideoPlayer = () => {
           </video>
         </div>
 
-
-        {/* Tabs */}
         <div className="tabs">
           <button
             className={activeTab === 'description' ? 'active-tab' : ''}
@@ -191,15 +184,14 @@ const VideoPlayer = () => {
         </div>
       </div>
 
-      {/* Chatbox */}
       <div className="right-column">
         <div className="tabs">
-            <button
-              className={rightTab === 'caption' ? 'active-tab' : ''}
-              onClick={() => setRightTab('caption')}
-            >
-              {t('live_caption')}
-            </button>
+          <button
+            className={rightTab === 'caption' ? 'active-tab' : ''}
+            onClick={() => setRightTab('caption')}
+          >
+            {t('live_caption')}
+          </button>
           <button
             className={rightTab === 'chat' ? 'active-tab' : ''}
             onClick={() => setRightTab('chat')}
@@ -209,12 +201,12 @@ const VideoPlayer = () => {
         </div>
         <div className="tab-content">
           {rightTab === 'caption' && (
-              <div className="live-captions">
-                <h3>{t('live_caption')}</h3>
-                <div className="live-caption-box">
-                  <p>{currentCaption}</p>
-                </div>
+            <div className="live-captions">
+              <h3>{t('live_caption')}</h3>
+              <div className="live-caption-box">
+                <p>{currentCaption}</p>
               </div>
+            </div>
           )}
           {rightTab === 'chat' && (
             <div className="chat-box">
