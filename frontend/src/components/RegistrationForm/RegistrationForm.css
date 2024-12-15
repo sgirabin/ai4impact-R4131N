@@ -1,39 +1,137 @@
-/* Registration Form component - RegistrationForm.css */
+/* Registration Form Styling - RegistrationForm.css */
 
 .registration-form {
-  max-width: 600px;
+  max-width: 700px;
   margin: 0 auto;
-  padding: 25px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
+  padding: 30px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
   background-color: #fdfdfd;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
 }
 
 .registration-form h2 {
-  margin-bottom: 25px;
+  margin-bottom: 20px;
+  font-size: 1.8rem;
+  text-align: center;
+  color: #333;
+}
+
+/* Form Group Styling */
+.form-group {
+  margin-bottom: 20px;
 }
 
 .form-group label {
-  display: block; /* Ensure label is a block element */
+  display: block;
   margin-bottom: 8px;
-  font-weight: bold; /* Make label text bold */
-  text-align: left; /* Align label to the left */
+  font-weight: 600;
+  color: #555;
 }
 
+/* Input and Select Styling */
 .form-group input,
 .form-group select {
   width: 100%;
   padding: 10px;
-  box-sizing: border-box;
+  font-size: 1rem;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
 }
 
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.2);
+}
+
+/* Topics Container */
+.topics-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Two columns layout */
+  gap: 20px; /* Space between topics */
+  margin-top: 10px;
+}
+
+/* Topic Section Styling */
+.topic-section {
+  padding: 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  background-color: #fafafa;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  width: 500px;
+}
+
+.topic-section input[type="checkbox"] {
+    margin-right: 10px;
+    width: 50px;
+}
+
+.topic-section:hover {
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  border-color: #007bff;
+}
+
+/* Subtopic List Styling */
+.subtopic {
+  display: flex;
+  align-items: center;
+  margin: 8px 0;
+}
+
+.subtopic input[type="checkbox"] {
+  margin-right: 10px;
+  cursor: pointer;
+  width: 50px
+}
+
+.subtopic label {
+  flex-grow: 1;
+  font-weight: normal;
+}
+
+.subtopic select {
+  width: 50%;
+  padding: 5px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+}
+
+/* Button Styling */
 button {
-  width: auto; /* Fix button width */
-  padding: 12px;
+  width: 100%;
+  padding: 12px 20px;
+  font-size: 1rem;
   background-color: #007bff;
   color: white;
   border: none;
   border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+/* Footer Links */
+.registration-form p {
+  text-align: center;
+  margin-top: 15px;
+}
+
+.registration-form a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.registration-form a:hover {
+  text-decoration: underline;
 }

@@ -126,17 +126,17 @@ const RegistrationForm = ({ onRegister, onShowLogin }) => {
           <label>{t('interest_topics')}</label>
           <div className="topics-container">
             {Object.keys(topics).map((topic) => (
-              <div key={topic}>
+              <div key={topic} className="topic-section">
                 <label>
                   <input
                     type="checkbox"
                     checked={selectedTopics[topic] && selectedTopics[topic].length === topics[topic].length}
                     onChange={() => handleTopicChange(topic)}
                   />
-                  {topic}
+                  <strong>{topic}</strong>
                 </label>
                 {topics[topic].map((subTopic) => (
-                  <div key={subTopic}>
+                  <div key={subTopic} className="subtopic">
                     <input
                       type="checkbox"
                       checked={selectedTopics[topic] && selectedTopics[topic].includes(subTopic)}
