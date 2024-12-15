@@ -54,5 +54,6 @@
   "type_your_message": "Type your message",
   "send": "Send",
   "sending": "Sending...",
-  "no_response_from_ai": "Sorry, no response from AI."
+  "no_response_from_ai": "Sorry, no response from AI.",
+  "select_language": "Select Language"
 }

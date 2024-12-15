@@ -54,5 +54,6 @@
   "type_your_message": "Ketik pesan Anda",
   "send": "Kirim",
   "sending": "Mengirim...",
-  "no_response_from_ai": "Maaf, tidak ada respons dari AI."
+  "no_response_from_ai": "Maaf, tidak ada respons dari AI.",
+  "select_language": "Pilih Bahasa"
 }
