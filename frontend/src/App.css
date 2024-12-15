@@ -1,65 +1,82 @@
-/* App-specific Styles - App.css */
+/* Modern Header Styling - App.css */
 
 /* Header layout */
 header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 20px;
-  background-color: #d9eefe;
-  border-bottom: 1px solid #ccc;
+  padding: 15px 30px;
+  background-color: #004080; /* Darker blue for a modern look */
+  color: white; /* White text for contrast */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
 }
 
+/* Header Title */
 header h1 {
-  font-size: 2em;
-  flex-grow: 1; /* Ensure the header text takes available space */
-  color: #800000;
+  font-size: 1.8em;
+  font-weight: bold;
+  margin: 0;
+  color: #ffcc00; /* Bright yellow for contrast */
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
 }
 
-
-/* Language dropdown styling */
+/* Language Selector */
 .language-selector {
-  text-align: right;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  margin: 20px;
+  align-items: center;
+  gap: 10px;
 }
 
 .language-selector select {
-  padding: 8px;
-  margin-bottom: 10px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #f9f9f9;
+  padding: 6px 10px;
+  font-size: 0.9em;
+  border: none;
+  border-radius: 5px;
+  background-color: #fff;
+  color: #333;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
 }
 
+.language-selector select:hover {
+  background-color: #f1f1f1;
+}
 
-/* User info section */
+/* User Info Section */
 .user-info {
   display: flex;
   align-items: center;
-  gap: 10px; /* Adds space between username and logout link */
-  font-size: 16px;
+  gap: 10px; /* Space between elements */
+  font-size: 1em;
 }
 
 .user-info span {
-  font-weight: bold;
+  font-weight: 500;
+  color: #ffcc00; /* Yellow to match header title */
 }
 
 .user-info a {
-  color: #007bff;
+  color: #ffcc00;
   text-decoration: none;
   font-weight: bold;
-  cursor: pointer;
+  transition: color 0.3s ease;
 }
 
 .user-info a:hover {
+  color: #fff; /* White on hover for emphasis */
   text-decoration: underline;
 }
 
+/* Footer (for consistency) */
 footer {
-    font-size: 1em;
-    background-color: #d9eefe;
+  font-size: 0.9em;
+  background-color: #004080;
+  color: #fff;
+  padding: 10px 20px;
+  text-align: center;
+}
+footer p {
+    color: #ffcc00;
 }

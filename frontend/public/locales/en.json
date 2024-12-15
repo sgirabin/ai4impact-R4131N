@@ -46,5 +46,13 @@
   "not_available": "Not Available",
   "notes": "Notes",
   "back_to_course_selection": "Back to Course Selection",
-  "your_browser_does_not_support_video": "Your browser does not support the video element."
+  "your_browser_does_not_support_video": "Your browser does not support the video element.",
+  "chat": "Chat",
+  "chat_placeholder": "Ask a question or discuss lecture notes here...",
+  "course_module": "Course Module",
+  "no_module_available": "No module available",
+  "type_your_message": "Type your message",
+  "send": "Send",
+  "sending": "Sending...",
+  "no_response_from_ai": "Sorry, no response from AI."
 }

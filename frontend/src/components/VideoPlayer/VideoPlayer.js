@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { io } from 'socket.io-client';
+import FeedbackForm from '../FeedbackForm/FeedbackForm'; // Import FeedbackForm
 import '../../styles/global.css';
 import './VideoPlayer.css';
+import axios from 'axios';
 
 const VideoPlayer = () => {
   const { t, i18n } = useTranslation();
@@ -14,7 +16,10 @@ const VideoPlayer = () => {
   const [socket, setSocket] = useState(null);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false); // State to track if audio is playing
   const [activeTab, setActiveTab] = useState('description'); // For course description/feedback tabs
-  const [rightTab, setRightTab] = useState('notes'); // For course notes/chatbox tabs
+  const [rightTab, setRightTab] = useState('chat'); // For course notes/chatbox tabs
+  const [chatInput, setChatInput] = useState(''); // User input in chatbox
+  const [chatHistory, setChatHistory] = useState([]); // Chat messages
+  const [isLoading, setIsLoading] = useState(false); // Loading state for chat API
   const videoRef = useRef(null);
 
   // Initialize socket connection
@@ -74,6 +79,38 @@ const VideoPlayer = () => {
     setIsAudioPlaying(false); // Stop playing synthesized audio
   };
 
+  // Handle user chat submission
+  const handleChatSubmit = async (e) => {
+    e.preventDefault();
+    if (!chatInput.trim()) return; // Skip empty messages
+
+    // Add user message to chat history
+    setChatHistory((prev) => [...prev, { author: 'user', content: chatInput }]);
+    setIsLoading(true);
+
+    try {
+      const response = await axios.post('/api/chat', {
+        courseId: course._doc.id,
+        query: chatInput,
+        targetLanguage: i18n.language,
+      });
+
+      // Extract the AI response from the backend response
+      const aiResponse = response.data.response || t('no_response_from_ai');
+      setChatHistory((prev) => [...prev, { author: 'ai', content: aiResponse }]);
+    } catch (error) {
+      console.error('Chat error:', error);
+      setChatHistory((prev) => [
+        ...prev,
+        { author: 'ai', content: t('error_chat_message') || 'Sorry, something went wrong. Please try again.' },
+      ]);
+    } finally {
+      setIsLoading(false);
+      setChatInput('');
+    }
+  };
+
+
   if (!course) {
     return <div>{t('course_data_not_available')}</div>;
   }
@@ -121,7 +158,7 @@ const VideoPlayer = () => {
           </div>
         </div>
 
-        {/* Tabs for Course Description and Feedback */}
+        {/* Tabs for Course Description, Notes and Feedback */}
         <div className="tabs">
           <button
             className={activeTab === 'description' ? 'active-tab' : ''}
@@ -129,6 +166,12 @@ const VideoPlayer = () => {
           >
             {t('description')}
           </button>
+            <button
+              className={activeTab === 'notes' ? 'active-tab' : ''}
+              onClick={() => setActiveTab('notes')}
+            >
+              {t('notes')}
+            </button>
           <button
             className={activeTab === 'feedback' ? 'active-tab' : ''}
             onClick={() => setActiveTab('feedback')}
@@ -142,23 +185,26 @@ const VideoPlayer = () => {
               <p>{course.description || t('not_available')}</p>
             </div>
           )}
+            {activeTab === 'notes' && (
+            <div className="course-notes">
+              {course.notes.split('\n').map((line, index) => (
+                <p key={index} style={{ marginBottom: '8px' }}>
+                  {line}
+                </p>
+              ))}
+            </div>
+            )}
           {activeTab === 'feedback' && (
             <div className="course-feedback">
-              <p>{t('feedback_placeholder')}</p>
+              <FeedbackForm videoId={course._doc.id} />
             </div>
           )}
         </div>
       </div>
 
       <div className="right-column">
-        {/* Tabs for Course Notes and Chatbox */}
+        {/* Tabs for  Chatbox */}
         <div className="tabs">
-          <button
-            className={rightTab === 'notes' ? 'active-tab' : ''}
-            onClick={() => setRightTab('notes')}
-          >
-            {t('notes')}
-          </button>
           <button
             className={rightTab === 'chat' ? 'active-tab' : ''}
             onClick={() => setRightTab('chat')}
@@ -167,18 +213,30 @@ const VideoPlayer = () => {
           </button>
         </div>
         <div className="tab-content">
-          {rightTab === 'notes' && (
-            <div className="course-notes">
-              {course.notes.split('\n').map((line, index) => (
-                <p key={index} style={{ marginBottom: '8px' }}>
-                  {line}
-                </p>
-              ))}
-            </div>
-          )}
           {rightTab === 'chat' && (
             <div className="chat-box">
-              <p>{t('chat_placeholder')}</p>
+              <div className="chat-messages">
+                {chatHistory.map((msg, index) => (
+                  <div
+                    key={index}
+                    className={`message ${msg.author === 'user' ? 'user' : 'ai'}`}
+                  >
+                    {msg.content}
+                  </div>
+                ))}
+              </div>
+              <form className="chat-input" onSubmit={handleChatSubmit}>
+                <input
+                  type="text"
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  placeholder={t('type_your_message')}
+                  disabled={isLoading}
+                />
+                <button type="submit" disabled={isLoading}>
+                  {isLoading ? t('sending') : t('send')}
+                </button>
+              </form>
             </div>
           )}
         </div>

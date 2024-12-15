@@ -46,5 +46,13 @@
   "not_available": "उपलब्ध नहीं",
   "notes": "नोट्स",
   "back_to_course_selection": "कोर्स चयन पर वापस जाएं",
-  "your_browser_does_not_support_video": "आपका ब्राउज़र वीडियो तत्व का समर्थन नहीं करता।"
+  "your_browser_does_not_support_video": "आपका ब्राउज़र वीडियो तत्व का समर्थन नहीं करता।",
+  "chat": "चैट",
+  "chat_placeholder": "यहाँ प्रश्न पूछें या व्याख्यान नोट्स पर चर्चा करें...",
+  "course_module": "पाठ्यक्रम मॉड्यूल",
+  "no_module_available": "कोई मॉड्यूल उपलब्ध नहीं है",
+  "type_your_message": "अपना संदेश टाइप करें",
+  "send": "भेजें",
+  "sending": "भेजा जा रहा है...",
+  "no_response_from_ai": "माफ़ कीजिए, एआई से कोई उत्तर नहीं मिला।"
 }

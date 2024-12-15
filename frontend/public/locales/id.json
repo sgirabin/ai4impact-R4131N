@@ -46,5 +46,13 @@
   "not_available": "Tidak Tersedia",
   "notes": "Catatan",
   "back_to_course_selection": "Kembali ke Pilihan Kursus",
-  "your_browser_does_not_support_video": "Peramban Anda tidak mendukung elemen video."
+  "your_browser_does_not_support_video": "Peramban Anda tidak mendukung elemen video.",
+  "chat": "Chat",
+  "chat_placeholder": "Ajukan pertanyaan atau diskusikan catatan kuliah di sini...",
+  "course_module": "Modul Kursus",
+  "no_module_available": "Tidak ada modul yang tersedia",
+  "type_your_message": "Ketik pesan Anda",
+  "send": "Kirim",
+  "sending": "Mengirim...",
+  "no_response_from_ai": "Maaf, tidak ada respons dari AI."
 }

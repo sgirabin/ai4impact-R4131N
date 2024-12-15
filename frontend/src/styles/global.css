@@ -1,18 +1,32 @@
 /* Global Styles - global.css */
 
-/* Body and global font styles */
+/* Body and Font */
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background-color: #f8f9fa; /* Light background for the entire app */
-  color: #333; /* Default text color */
+  padding: 0;
+  font-family: 'Segoe UI', 'Roboto', 'Oxygen', sans-serif;
+  background-color: #f4f6f9;
+  color: #333;
+  line-height: 1.6;
+  height:100%;
 }
 
-/* Code block styling */
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-weight: bold;
+  color: #004080; /* Dark Blue Text */
+}
+
+h1 {
+  font-size: 2.5em;
+  letter-spacing: 1px;
+}
+
+p {
+  margin-top: 10px;
+  color: #555;
+  text-align: center;
 }
 
 /* Buttons */
@@ -20,81 +34,63 @@ button {
   padding: 10px 20px;
   background-color: #007bff;
   color: white;
+  font-weight: 600;
   border: none;
   border-radius: 5px;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
   cursor: pointer;
-  font-size: 1em;
-  transition: background-color 0.3s ease;
 }
 
 button:hover {
   background-color: #0056b3;
-}
-
-/* Flexbox Utilities */
-.flex-center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.flex-column {
-  display: flex;
-  flex-direction: column;
-}
-
-/* Grid System */
-.grid {
-  display: grid;
-}
-
-.grid-columns {
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 20px;
-}
-
-/* Form Inputs */
-select, input, textarea {
-  border-radius: 4px;
-  font-size: 1em;
-  padding: 10px;
-  box-sizing: border-box;
-  margin-bottom: 15px;
-  border: 1px solid #ccc;
-}
-
-select:focus, input:focus, textarea:focus {
-  outline: 2px solid #0056b3; /* Add focus outline for better accessibility */
+  transform: translateY(-2px);
 }
 
 /* Links */
 a {
   color: #007bff;
   text-decoration: none;
-  cursor: pointer;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-/* Text Alignments */
-.text-center {
-  text-align: center;
-}
-
-.text-left {
-  text-align: left;
-}
-
-/* Typography */
-h1, h2, h3 {
-  margin-bottom: 20px;
   font-weight: bold;
 }
 
-p {
+a:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+/* Containers */
+.container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Flex Center */
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Grid Layout */
+.grid-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin: 20px 0;
+}
+
+/* Footer */
+footer {
   text-align: center;
-  margin-top: 20px;
-  color: #666;
+  padding: 15px;
+  background-color: #004080;
+  color: #ffcc00;
+  font-size: 0.9em;
+}
+
+body div#root {
+    height: 100%
 }

@@ -6,8 +6,7 @@ const cors = require('cors'); // Import CORS middleware
 const { register, login } = require('./components/auth');
 const { getCourses } = require('./components/courses');
 const { translateCourseContent } = require('./components/translate');
-const { uploadToGcs } = require('./components/gcs');
-const { getVideoId } = require('./components/utils');
+const chatRoutes = require('./components/chat'); // Import the chat.js router
 
 const app = express();
 app.use(bodyParser.json());
@@ -25,12 +24,14 @@ mongoose.connect('mongodb://localhost:27017/grow-platform', {
   useUnifiedTopology: true
 });
 
-// Routes
+// Define routes explicitly to avoid conflicts
 app.post('/api/register', register);
 app.post('/api/login', login);
 app.get('/api/courses', getCourses);
 app.post('/api/translate-interface', translateCourseContent);
 
+// Add chat functionality under `/api/chat`
+app.use('/api/chat', chatRoutes);
 
 // Export app and server for backend index
 module.exports = app;
