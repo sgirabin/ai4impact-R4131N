@@ -19,18 +19,25 @@ const ContentSelection = ({ username }) => {
       .then(response => {
         console.log("Response", response.data)
         const coursesWithTranslatedContent = response.data.map(course => {
-          // Translate course title and description based on the user's language preference
-          const translatedTitle = course.title && course.title[i18n.language]
-            ? course.title[i18n.language]
-            : course.title['en'];
-          const translatedDescription = course.description && course.description[i18n.language]
-            ? course.description[i18n.language]
-            : course.description['en'];
-          const translatedNotes = course.notes && course.notes[i18n.language]
+          // Check if course.title and course.description are objects
+          const translatedTitle =
+            course.title && typeof course.title === 'object' && course.title[i18n.language]
+              ? course.title[i18n.language]
+              : course.title || 'No title available';
+
+          const translatedDescription =
+            course.description && typeof course.description === 'object' && course.description[i18n.language]
+              ? course.description[i18n.language]
+              : course.description || 'No description available';
+
+          const translatedNotes =
+            course.notes && typeof course.notes === 'object' && course.notes[i18n.language]
               ? course.notes[i18n.language]
-              : course.notes['en'];
+              : course.notes || 'No notes available';
+
           return { ...course, title: translatedTitle, description: translatedDescription, notes: translatedNotes };
         });
+
         console.log("coursesWithTranslatedContent", coursesWithTranslatedContent)
         setCourses(coursesWithTranslatedContent);
         setFilteredCourses(coursesWithTranslatedContent);
@@ -64,15 +71,19 @@ const ContentSelection = ({ username }) => {
       <div className="course-grid">
         {filteredCourses.map( (course, index) => (
           <div key={`course-${course.id || index}`} className="course-card" onClick={() => handleSelectCourse(course)}>
-            <img src={course._doc.thumbnail} alt={course.title} className="course-thumbnail" />
+            <img
+              src={course?._doc?.thumbnail || 'https://via.placeholder.com/150'} // Fallback thumbnail
+              alt={course.title || 'No Title'}
+              className="course-thumbnail"
+            />
             <h3>{course.title}</h3>
-            <p><strong>{t('duration')}:</strong> {course._doc.duration}</p>
-            <p><strong>{t('level')}:</strong> {course._doc.level}</p>
-            <p><strong>{t('source')}:</strong> {course._doc.source}</p>
+            <p><strong>{t('duration')}:</strong> {course?._doc?.duration}</p>
+            <p><strong>{t('level')}:</strong> {course?._doc?.level}</p>
+            <p><strong>{t('source')}:</strong> {course?._doc?.source}</p>
             <p><strong>{t('description')}:</strong> {course.description}</p>
             <div className="course-topics">
-              {Array.isArray(course._doc.topics) && course._doc.topics.length > 0 ? (
-                course._doc.topics.map( (topic, topicIndex) => (
+              {Array.isArray(course?._doc?.topics) && course?._doc?.topics.length > 0 ? (
+                course?._doc?.topics.map( (topic, topicIndex) => (
                   <span key={`topic-${index}-${topicIndex}`} className="course-topic">{topic}</span>
                 ))
               ) : (
