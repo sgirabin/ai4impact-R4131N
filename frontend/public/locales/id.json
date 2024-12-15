@@ -55,5 +55,6 @@
   "send": "Kirim",
   "sending": "Mengirim...",
   "no_response_from_ai": "Maaf, tidak ada respons dari AI.",
-  "select_language": "Pilih Bahasa"
+  "select_language": "Pilih Bahasa",
+  "error_chat_message": "Terjadi kesalahan. Silakan coba lagi.",
 }

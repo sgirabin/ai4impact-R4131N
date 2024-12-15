@@ -55,5 +55,6 @@
   "send": "भेजें",
   "sending": "भेजा जा रहा है...",
   "no_response_from_ai": "माफ़ कीजिए, एआई से कोई उत्तर नहीं मिला।",
-  "select_language": "भाषा चुनें"
+  "select_language": "भाषा चुनें",
+  "error_chat_message": "कुछ गलत हो गया। कृपया पुनः प्रयास करें।"
 }

@@ -55,5 +55,6 @@
   "send": "Send",
   "sending": "Sending...",
   "no_response_from_ai": "Sorry, no response from AI.",
-  "select_language": "Select Language"
+  "select_language": "Select Language",
+  "error_chat_message": "Something went wrong. Please try again."
 }
