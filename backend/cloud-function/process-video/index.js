@@ -48,32 +48,16 @@ exports.processVideoUpload = async (event, context) => {
     await storage.bucket(bucketName).upload(localAudioPath, { destination: `${audioFolder}/${courseId}_audio.wav` });
     console.log(`Audio uploaded to GCS: ${gcsAudioPath}`);
 
-    // Step 4: Generate captions and audio for each supported language
+    // Step 4: Transcribe audio (only once)
+    console.log('Transcribing audio...');
+    const transcription = await transcribeAudio(gcsAudioPath);
+    console.log('Transcription completed:', transcription);
+
+    // Step 5: Process languages concurrently
     const supportedLanguages = ['en', 'id', 'hi'];
-    for (const language of supportedLanguages) {
-      console.log(`Processing language: ${language}`);
-
-      // Transcribe audio to text
-      const transcription = await transcribeAudio(gcsAudioPath);
-      console.log(`Transcription: ${transcription}`);
-
-      // Translate transcription to the target language
-      const [translatedText] = await translateClient.translate(transcription, language);
-      console.log(`Translated Text (${language}): ${translatedText}`);
-
-      // Save captions to GCS
-      const captionPath = `${captionFolder}/${courseId}_${language}.txt`;
-      await storage.bucket(bucketName).file(captionPath).save(translatedText);
-      console.log(`Caption saved to: ${captionPath}`);
-
-      // Generate dubbed audio for the target language (excluding English)
-      if (language !== 'en') {
-        const dubbedAudio = await synthesizeSpeech(translatedText, language);
-        const audioPath = `${audioFolder}/${courseId}_${language}.mp3`;
-        await storage.bucket(bucketName).file(audioPath).save(dubbedAudio);
-        console.log(`Dubbed audio saved to: ${audioPath}`);
-      }
-    }
+    const tasks = supportedLanguages.map((language) => processLanguage(courseId, transcription, language));
+    await Promise.all(tasks);
+    console.log('All language processing completed.');
   } catch (error) {
     console.error('Error processing video:', error.message);
     throw new Error(error.message);
@@ -109,18 +93,39 @@ async function transcribeAudio(gcsUri) {
       languageCode: 'en-US',
     },
     audio: {
-      uri: gcsUri, // Correct GCS URI of the audio file
+      uri: gcsUri,
     },
   };
 
-  console.log('Starting longRunningRecognize for:', gcsUri);
-
   const [operation] = await speechClient.longRunningRecognize(request);
-  console.log('Waiting for operation to complete...');
+  console.log('Waiting for transcription operation to complete...');
   const [response] = await operation.promise();
-  console.log('Transcription operation completed.');
-
   return response.results.map((result) => result.alternatives[0].transcript).join(' ');
+}
+
+// Helper: Process individual language
+async function processLanguage(courseId, transcription, language) {
+  console.log(`Processing language: ${language}`);
+  try {
+    // Translate transcription to the target language
+    const [translatedText] = await translateClient.translate(transcription, language);
+    console.log(`Translated Text (${language}): ${translatedText}`);
+
+    // Save captions to GCS
+    const captionPath = `${captionFolder}/${courseId}_${language}.txt`;
+    await storage.bucket(bucketName).file(captionPath).save(translatedText);
+    console.log(`Caption saved to: ${captionPath}`);
+
+    // Generate dubbed audio for non-English languages
+    if (language !== 'en') {
+      const dubbedAudio = await synthesizeSpeech(translatedText, language);
+      const audioPath = `${audioFolder}/${courseId}_${language}.mp3`;
+      await storage.bucket(bucketName).file(audioPath).save(dubbedAudio);
+      console.log(`Dubbed audio saved to: ${audioPath}`);
+    }
+  } catch (error) {
+    console.error(`Error processing language (${language}):`, error.message);
+  }
 }
 
 // Helper: Synthesize speech to audio
