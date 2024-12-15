@@ -3,5 +3,7 @@ node_modules
 backend/configs/service-account.json
 backend/scripts/caption-downloader.py
 backend/cloud-function/process-video/node_modules
+backend/cloud-function/process-video/package-lock.json
 frontend/node_modules
+frontend/package-lock.json
 package-lock.json
