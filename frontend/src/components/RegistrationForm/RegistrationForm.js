@@ -5,14 +5,7 @@ import '../../styles/global.css';
 import './RegistrationForm.css';
 
 const topics = {
-  'Science': ['Physics', 'Quantum Physics', 'Biology', 'Chemistry'],
   'Computer Science': ['Artificial Intelligence', 'Python Programming', 'Java Programming', 'Data Science'],
-  'Engineering': ['Mechanical Engineering', 'Electrical Engineering', 'Civil Engineering', 'Robotics'],
-  'Mathematics': ['Algebra', 'Geometry', 'Calculus', 'Statistics'],
-  'Business': ['Business Analytics', 'Marketing', 'Finance', 'Entrepreneurship'],
-  'Humanities': ['History', 'Philosophy', 'Psychology'],
-  'Art': ['Painting', 'Sculpture', 'Photography', 'Music'],
-  'Languages': ['English', 'Spanish', 'French', 'Mandarin'],
 };
 
 const difficultyLevels = ['Beginner', 'Intermediate', 'Advanced'];

@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { io } from 'socket.io-client';
-import FeedbackForm from '../FeedbackForm/FeedbackForm'; // Import FeedbackForm
+import FeedbackForm from '../FeedbackForm/FeedbackForm';
 import '../../styles/global.css';
 import './VideoPlayer.css';
 import axios from 'axios';
@@ -11,80 +10,94 @@ const VideoPlayer = () => {
   const { t, i18n } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
-  const { course } = location.state || {}; // Expect `state` to include course details'
-  const [liveCaptions, setLiveCaptions] = useState([]);
-  const [socket, setSocket] = useState(null);
-  const [isAudioPlaying, setIsAudioPlaying] = useState(false); // State to track if audio is playing
-  const [activeTab, setActiveTab] = useState('description'); // For course description/feedback tabs
-  const [rightTab, setRightTab] = useState('chat'); // For course notes/chatbox tabs
-  const [chatInput, setChatInput] = useState(''); // User input in chatbox
-  const [chatHistory, setChatHistory] = useState([]); // Chat messages
-  const [isLoading, setIsLoading] = useState(false); // Loading state for chat API
+  const { course } = location.state || {};
+  const [currentCaption, setCurrentCaption] = useState(''); // Sectional caption
+  const [dubbedAudioUrl, setDubbedAudioUrl] = useState(''); // Dubbed audio
+  const [captionsList, setCaptionsList] = useState([]); // List of sectional captions
+  const [currentCaptionIndex, setCurrentCaptionIndex] = useState(0);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const [activeTab, setActiveTab] = useState('description');
+  const [rightTab, setRightTab] = useState('caption');
+  const [chatInput, setChatInput] = useState('');
+  const [chatHistory, setChatHistory] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const videoRef = useRef(null);
+  const audioRef = useRef(null);
 
-  // Initialize socket connection
   useEffect(() => {
-    const newSocket = io('http://localhost:5001'); // Update with your backend WebSocket server
-    setSocket(newSocket);
-
-    newSocket.on('captionAndAudio', ({ caption, audioContent }) => {
-      console.log('Caption received:', caption);
-      setLiveCaptions((prevCaptions) => [...prevCaptions, caption]);
-
-      // Play the synthesized audio
-      if (audioContent) {
-        const audio = new Audio(`data:audio/mp3;base64,${audioContent}`);
-        audio.play();
-        setIsAudioPlaying(true);
-
-        audio.onended = () => {
-          setIsAudioPlaying(false);
-        };
+    if (course) {
+      if (i18n.language === 'en') {
+        // For English: Load original captions
+        setCaptionsList(course.originalCaptions?.split('\n') || []);
+        setDubbedAudioUrl('');
+      } else {
+        // Fetch captions and dubbed audio for other languages
+        fetchCaptionsAndAudio(course._doc.id, i18n.language);
       }
-    });
+    }
+  }, [course, i18n.language]);
 
-    newSocket.on('error', ({ message }) => {
-      console.error('Error received:', message);
-    });
+  // Fetch captions and dubbed audio from GCS
+  const fetchCaptionsAndAudio = async (courseId, language) => {
+    try {
+      const bucketUrl = 'https://storage.googleapis.com/vivo-learning-vidoes';
+      const captionUrl = `${bucketUrl}/caption/${courseId}_${language}.txt`;
+      const audioUrl = `${bucketUrl}/audio/${courseId}_${language}.mp3`;
 
-    return () => {
-      if (newSocket) newSocket.disconnect();
-    };
-  }, []);
-
-  const handleProcessAudio = () => {
-    if (socket && course) {
-      console.log('Processing the audio', course._doc.id);
-      const audioFileUri = `https://storage.googleapis.com/vivo-learning-vidoes/${course._doc.id}_${course._doc.id}.mp4`; // Use course.id for video path
-      console.log(audioFileUri);
-      const targetLanguage = i18n.language;
-
-      socket.emit('processAudioFile', { courseId: course._doc.id, targetLanguage });
+      // Fetch captions as a list of sections
+      const response = await axios.get(captionUrl);
+      setCaptionsList(response.data.split('\n')); // Split captions by new line
+      setDubbedAudioUrl(audioUrl);
+    } catch (error) {
+      console.error('Error fetching captions or audio:', error.message);
+      setCaptionsList([t('caption_not_available')]);
     }
   };
 
   const handleVideoPlay = () => {
-    console.log('Video started playing');
-    videoRef.current.muted = true; // Mute original audio
-    handleProcessAudio();
+    // Mute the original video audio
+    if (videoRef.current) videoRef.current.muted = true;
+
+    // Play dubbed audio if available
+    if (dubbedAudioUrl) {
+      playDubbedAudio();
+    }
+
+    // Start displaying captions section-by-section
+    setCurrentCaptionIndex(0);
   };
 
-  const handleVideoPause = () => {
-    console.log('Video paused');
-    setIsAudioPlaying(false); // Stop playing synthesized audio
+  const playDubbedAudio = () => {
+    if (dubbedAudioUrl) {
+      const audio = new Audio(dubbedAudioUrl);
+      audioRef.current = audio;
+
+      audio.play();
+      setIsAudioPlaying(true);
+
+      audio.onended = () => {
+        setIsAudioPlaying(false);
+      };
+    }
   };
 
-  const handleVideoEnded = () => {
-    console.log('Video ended');
-    setIsAudioPlaying(false); // Stop playing synthesized audio
-  };
+  useEffect(() => {
+    // Simulate captions updating per section
+    let timer;
+    if (captionsList.length > 0 && currentCaptionIndex < captionsList.length) {
+      timer = setTimeout(() => {
+        setCurrentCaption(captionsList[currentCaptionIndex]);
+        setCurrentCaptionIndex((prev) => prev + 1);
+      }, 5000); // Show each caption for 5 seconds
+    }
+    return () => clearTimeout(timer);
+  }, [currentCaptionIndex, captionsList]);
 
   // Handle user chat submission
   const handleChatSubmit = async (e) => {
     e.preventDefault();
-    if (!chatInput.trim()) return; // Skip empty messages
+    if (!chatInput.trim()) return;
 
-    // Add user message to chat history
     setChatHistory((prev) => [...prev, { author: 'user', content: chatInput }]);
     setIsLoading(true);
 
@@ -95,14 +108,13 @@ const VideoPlayer = () => {
         targetLanguage: i18n.language,
       });
 
-      // Extract the AI response from the backend response
       const aiResponse = response.data.response || t('no_response_from_ai');
       setChatHistory((prev) => [...prev, { author: 'ai', content: aiResponse }]);
     } catch (error) {
       console.error('Chat error:', error);
       setChatHistory((prev) => [
         ...prev,
-        { author: 'ai', content: t('error_chat_message') || 'Sorry, something went wrong. Please try again.' },
+        { author: 'ai', content: t('error_chat_message') || 'Something went wrong.' },
       ]);
     } finally {
       setIsLoading(false);
@@ -110,16 +122,10 @@ const VideoPlayer = () => {
     }
   };
 
-
-  if (!course) {
-    return <div>{t('course_data_not_available')}</div>;
-  }
-
   return (
     <div className="video-player-container">
       <div className="left-column">
         <h3>{t('course_module')}</h3>
-        {/* Placeholder for Course Modules */}
         <p>{t('no_module_available')}</p>
       </div>
 
@@ -131,7 +137,7 @@ const VideoPlayer = () => {
         </nav>
         <h2>{course.title}</h2>
 
-        {/* Video container */}
+        {/* Video Player */}
         <div className="video-container">
           <video
             ref={videoRef}
@@ -141,24 +147,13 @@ const VideoPlayer = () => {
             src={course._doc?.content?.video?.url || ''}
             crossOrigin="anonymous"
             onPlay={handleVideoPlay}
-            onPause={handleVideoPause}
-            onEnded={handleVideoEnded}
           >
             {t('your_browser_does_not_support_video')}
           </video>
         </div>
 
-        {/* Live captions */}
-        <div className="live-captions">
-          <h3>{t('live_caption')}</h3>
-          <div className="live-caption-box">
-            {liveCaptions.map((caption, index) => (
-              <p key={index}>{caption}</p>
-            ))}
-          </div>
-        </div>
 
-        {/* Tabs for Course Description, Notes and Feedback */}
+        {/* Tabs */}
         <div className="tabs">
           <button
             className={activeTab === 'description' ? 'active-tab' : ''}
@@ -166,12 +161,12 @@ const VideoPlayer = () => {
           >
             {t('description')}
           </button>
-            <button
-              className={activeTab === 'notes' ? 'active-tab' : ''}
-              onClick={() => setActiveTab('notes')}
-            >
-              {t('notes')}
-            </button>
+          <button
+            className={activeTab === 'notes' ? 'active-tab' : ''}
+            onClick={() => setActiveTab('notes')}
+          >
+            {t('notes')}
+          </button>
           <button
             className={activeTab === 'feedback' ? 'active-tab' : ''}
             onClick={() => setActiveTab('feedback')}
@@ -185,26 +180,26 @@ const VideoPlayer = () => {
               <p>{course.description || t('not_available')}</p>
             </div>
           )}
-            {activeTab === 'notes' && (
+          {activeTab === 'notes' && (
             <div className="course-notes">
               {course.notes.split('\n').map((line, index) => (
-                <p key={index} style={{ marginBottom: '8px' }}>
-                  {line}
-                </p>
+                <p key={index}>{line}</p>
               ))}
             </div>
-            )}
-          {activeTab === 'feedback' && (
-            <div className="course-feedback">
-              <FeedbackForm videoId={course._doc.id} />
-            </div>
           )}
+          {activeTab === 'feedback' && <FeedbackForm videoId={course._doc.id} />}
         </div>
       </div>
 
+      {/* Chatbox */}
       <div className="right-column">
-        {/* Tabs for  Chatbox */}
         <div className="tabs">
+            <button
+              className={rightTab === 'caption' ? 'active-tab' : ''}
+              onClick={() => setRightTab('caption')}
+            >
+              {t('live_caption')}
+            </button>
           <button
             className={rightTab === 'chat' ? 'active-tab' : ''}
             onClick={() => setRightTab('chat')}
@@ -213,6 +208,14 @@ const VideoPlayer = () => {
           </button>
         </div>
         <div className="tab-content">
+          {rightTab === 'caption' && (
+              <div className="live-captions">
+                <h3>{t('live_caption')}</h3>
+                <div className="live-caption-box">
+                  <p>{currentCaption}</p>
+                </div>
+              </div>
+          )}
           {rightTab === 'chat' && (
             <div className="chat-box">
               <div className="chat-messages">

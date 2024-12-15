@@ -37,3 +37,7 @@
   height: auto;   /* Maintain aspect ratio */
   object-fit: cover; /* Optional: ensures the image covers the area nicely */
 }
+
+.content-selection input {
+    height: 25px;
+}

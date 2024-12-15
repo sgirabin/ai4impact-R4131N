@@ -38,7 +38,29 @@ const courses = [
         level: 'Beginner',
         language: 'en',
         accessible: true
-    }
+    },
+        {
+            id: '2',
+            title: 'What is Machine Learning',
+            source: 'Code.org',
+            type: ['video', 'text'],  // Array to specify multiple types of content
+            content: {               // New property to group content types
+                video: {
+                    url: 'https://storage.googleapis.com/vivo-learning-vidoes/2_1.mp4',
+                    duration: '15 minutes' // Specific to video
+                },
+                text: {
+                    url: 'https://storage.googleapis.com/vivo-learning-text/2_1.txt',  // Text content URL
+                }
+            },
+            topics: ['Computer Science', 'Data Science'],
+            description: 'https://storage.googleapis.com/vivo-learning-description/2.txt',
+            thumbnail: 'https://storage.googleapis.com/vivo-learning-thumbnails/2_1.jpg',
+            duration: '15 minutes',
+            level: 'Beginner',
+            language: 'en',
+            accessible: true
+        }
 ];
 
 async function populateCourses() {

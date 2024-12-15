@@ -259,3 +259,12 @@ video {
   background-color: #aaa;
   cursor: not-allowed;
 }
+
+.live-caption-box p {
+    text-align: left;
+}
+
+.feedback-form textarea {
+    width: 550px;
+    height: 200px;
+}
