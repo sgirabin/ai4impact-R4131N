@@ -22,7 +22,7 @@ const VideoPlayer = () => {
   const [chatHistory, setChatHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const videoRef = useRef(null);
-  const audioRef = useRef(null);
+  const audioRef = useRef(null); // Reference for the Audio instance
 
   useEffect(() => {
     if (course) {
@@ -39,9 +39,8 @@ const VideoPlayer = () => {
   useEffect(() => {
     return () => {
       if (audioRef.current) {
-        audioRef.current.pause(); // Stop audio playback
-        audioRef.current.currentTime = 0; // Reset audio time
-        audioRef.current = null; // Clear audio reference
+        audioRef.current.pause();
+        audioRef.current = null;
       }
     };
   }, []);
@@ -63,19 +62,31 @@ const VideoPlayer = () => {
 
   const handleVideoPlay = () => {
     if (videoRef.current) videoRef.current.muted = true;
-    playDubbedAudio();
+    if (dubbedAudioUrl) {
+      playDubbedAudio();
+    }
     setCurrentCaptionIndex(0);
+  };
+
+  const handleVideoPause = () => {
+    if (audioRef.current) {
+      audioRef.current.pause(); // Pause audio playback
+    }
   };
 
   const playDubbedAudio = () => {
     if (dubbedAudioUrl) {
-      const audio = new Audio(dubbedAudioUrl);
-      audioRef.current = audio;
+      // Check if audioRef already exists; if not, create it
+      if (!audioRef.current) {
+        audioRef.current = new Audio(dubbedAudioUrl);
+      }
 
-      audio.play();
+      audioRef.current.play();
       setIsAudioPlaying(true);
 
-      audio.onended = () => setIsAudioPlaying(false);
+      audioRef.current.onended = () => {
+        setIsAudioPlaying(false);
+      };
     }
   };
 
@@ -142,6 +153,7 @@ const VideoPlayer = () => {
             src={course._doc?.content?.video?.url || ''}
             crossOrigin="anonymous"
             onPlay={handleVideoPlay}
+            onPause={handleVideoPause} // Pause dubbed audio
           >
             {t('your_browser_does_not_support_video')}
           </video>
