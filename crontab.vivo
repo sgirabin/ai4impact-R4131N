@@ -1,0 +1,4 @@
+# Run backend and frontend check every 5 minutes
+*/5 * * * * /path/to/check_backend.sh
+*/5 * * * * /path/to/check_frontend.sh
+
