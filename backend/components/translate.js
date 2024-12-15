@@ -30,6 +30,7 @@ async function translateCourseContent(course, targetLanguage) {
     const translatedTitle = course.title
       ? await translate.translate(course.title, targetLanguage)
       : course.title;
+
     const translatedDescription = descriptionContent
       ? await translate.translate(descriptionContent, targetLanguage)
       : descriptionContent;

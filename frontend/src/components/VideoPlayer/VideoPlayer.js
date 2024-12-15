@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { io } from 'socket.io-client';
-import axios from 'axios';
 import '../../styles/global.css';
 import './VideoPlayer.css';
 
@@ -13,121 +12,66 @@ const VideoPlayer = () => {
   const { course } = location.state || {}; // Expect `state` to include course details'
   const [liveCaptions, setLiveCaptions] = useState([]);
   const [socket, setSocket] = useState(null);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false); // State to track if audio is playing
   const videoRef = useRef(null);
-  const audioContextRef = useRef(null);
-  const audioWorkletNodeRef = useRef(null);
-  const mediaStreamRef = useRef(null);
-  const isPlayingRef = useRef(false);
 
-
+  // Initialize socket connection
   useEffect(() => {
-      // Initialize WebSocket connection
-      const newSocket = io('http://34.57.196.213:5001');
-      setSocket(newSocket);
+    const newSocket = io('http://localhost:5001'); // Update with your backend WebSocket server
+    setSocket(newSocket);
 
-      newSocket.on('caption', ({ text }) => {
-        console.log('Caption received:', text);
-        setLiveCaptions((prevCaptions) => [...prevCaptions, text]);
-      });
+    newSocket.on('captionAndAudio', ({ caption, audioContent }) => {
+      console.log('Caption received:', caption);
+      setLiveCaptions((prevCaptions) => [...prevCaptions, caption]);
 
-      return () => {
-        if (newSocket) newSocket.disconnect();
-        stopAudioProcessing();
-      };
-    }, []);
+      // Play the synthesized audio
+      if (audioContent) {
+        const audio = new Audio(`data:audio/mp3;base64,${audioContent}`);
+        audio.play();
+        setIsAudioPlaying(true);
 
-    const stopAudioProcessing = async () => {
-      if (audioWorkletNodeRef.current) {
-        audioWorkletNodeRef.current.disconnect();
-        audioWorkletNodeRef.current.port.close();
+        audio.onended = () => {
+          setIsAudioPlaying(false);
+        };
       }
-      if (mediaStreamRef.current) {
-        mediaStreamRef.current.disconnect();
-      }
-      if (audioContextRef.current) {
-        await audioContextRef.current.close();
-      }
-      console.log('Audio processing stopped.');
+    });
+
+    newSocket.on('error', ({ message }) => {
+      console.error('Error received:', message);
+    });
+
+    return () => {
+      if (newSocket) newSocket.disconnect();
     };
+  }, []);
 
-    
-    const handleVideoPlay = async () => {
-      console.log('Video started playing');
-      isPlayingRef.current = true;
+const handleProcessAudio = () => {
+  if (socket && course) {
+    console.log('processing the audio', course._doc.id)
+    const audioFileUri = `https://storage.googleapis.com/vivo-learning-vidoes/${course._doc.id}_${course._doc.id}.mp4`; // Use course.id for video path
+    console.log(audioFileUri)
+    const targetLanguage = i18n.language;
 
-      if (videoRef.current && socket) {
-        try {
-           // Initialize Web Audio API
-          const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-          audioContextRef.current = audioContext;
+    socket.emit('processAudioFile', { courseId: course._doc.id, targetLanguage });
+  }
+};
 
-	  const mediaStream = audioContext.createMediaElementSource(videoRef.current);
-          mediaStreamRef.current = mediaStream;
-          mediaStream.connect(audioContext.destination);
+  const handleVideoPlay = () => {
+    console.log('Video started playing');
+    videoRef.current.muted = true; // Mute original audio
+    handleProcessAudio();
+  };
 
- 	  if (!audioContext.audioWorklet) {
-  		console.error('AudioWorklet is not supported. Using fallback.');
+  const handleVideoPause = () => {
+    console.log('Video paused');
+    setIsAudioPlaying(false); // Stop playing synthesized audio
+  };
 
-  		const processor = audioContext.createScriptProcessor(4096, 1, 1);
-  		mediaStream.connect(processor);
-  		processor.connect(audioContext.destination);
+  const handleVideoEnded = () => {
+    console.log('Video ended');
+    setIsAudioPlaying(false); // Stop playing synthesized audio
+  };
 
-  		processor.onaudioprocess = (event) => {
-    			const audioData = event.inputBuffer.getChannelData(0);
-    			socket.emit('audioStream', {
-      				audioBuffer: Array.from(audioData),
-      				language: course._doc?.language || i18n.language,
-    			});
-  		};
-  		return;
-	  }
-
-
-	  //if (!audioContext.audioWorklet) {
-          //     throw new Error('AudioWorklet is not supported in this browser.');
-          //}
-	  //audioContextRef.current = audioContext;
-
-          // Create MediaElementSource from video
-          //const mediaStream = audioContext.createMediaElementSource(videoRef.current);
-          //mediaStreamRef.current = mediaStream;
-
-          // Load and register the audio worklet processor
-          await audioContext.audioWorklet.addModule('/worklet-processor.js');
-          const audioWorkletNode = new AudioWorkletNode(audioContext, 'audio-processor');
-          audioWorkletNodeRef.current = audioWorkletNode;
-
-          // Connect media stream to worklet and destination
-          mediaStream.connect(audioWorkletNode);
-          //mediaStream.connect(audioContext.destination); // Ensure audio is played
-          console.log('Audio Worklet connected successfully');
-
-          // Handle messages from the worklet
-          audioWorkletNode.port.onmessage = (event) => {
-            const audioData = event.data;
-            if (isPlayingRef.current) {
-              socket.emit('audioStream', {
-                audioBuffer: Array.from(audioData), // Convert to array
-                language: course._doc?.language || i18n.language,
-              });
-            }
-          };
-        } catch (error) {
-          console.error('Error setting up AudioWorklet:', error);
-        }
-      }
-    };
-
-    const handleVideoPause = () => {
-      console.log('Video paused');
-      isPlayingRef.current = false;
-    };
-
-    const handleVideoEnded = () => {
-      console.log('Video ended');
-      isPlayingRef.current = false;
-      stopAudioProcessing(); // Stop processing when video ends
-    };
 
   if (!course) {
     return <div>{t('course_data_not_available')}</div>;
@@ -169,6 +113,13 @@ const VideoPlayer = () => {
         </div>
       </div>
 
+      {/* Process audio button (optional for manual trigger) */}
+      <div className="process-audio">
+        <button onClick={handleProcessAudio} disabled={isAudioPlaying}>
+          {isAudioPlaying ? t('processing_audio') : t('process_audio')}
+        </button>
+      </div>
+
         {/* Course description */}
         <div className="course-description">
             <h3>{t('description')}</h3>
@@ -197,8 +148,6 @@ const VideoPlayer = () => {
             ))}
         </div>
       </div>
-
-
 
     </div>
   );
